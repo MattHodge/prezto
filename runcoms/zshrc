@@ -11,3 +11,155 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customize to your needs...
+#
+# Executes commands at the start of an interactive session.
+#
+# Authors:
+#   Sorin Ionescu <sorin.ionescu@gmail.com>
+#
+
+# Source Prezto.
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+fi
+
+# Customization from here:
+
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+autoload -Uz promptinit
+promptinit
+prompt agnoster
+
+export PATH="/usr/local/opt/ab/bin:$PATH"
+export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
+plugins=(git vagrant zsh-autosuggestions)
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+########################
+# ALIASES              #
+########################
+
+alias furu='git fu && git ru && code .'
+alias gfi='git fuckit'
+alias gitcb='echo "Loading Coolblue Git" && cd ~/projectsgit/cb'
+alias gitp='echo "Loading Personal Git" && cd ~/projectsgit/personal'
+alias gitgo='echo "Loading Go Repos" && cd ~/go/src/github.com/MattHodge'
+
+########################
+# FUNCTIONS            #
+########################
+
+oct() {
+    stat -f %Mp%Lp $1
+}
+
+work() {
+    git remote | grep -q 'upstream'
+    containsUpstream=$?
+
+    # Allows passing in branch name, other wise defaults to epoch time
+    branchName=${1:-$(date +%s)}
+
+    if [ $containsUpstream -ne 0 ]
+    then
+        echo "Working directly on origin"
+        git fetch origin
+        git reset --hard origin/master
+        # checkout if branch exists otherwise create it
+        git checkout $branchName 2>/dev/null || git checkout -b $branchName --track
+        code .
+    else
+        echo "Working with a forked repository"
+        git fetch upstream
+        git rebase upstream/master
+        # checkout if branch exists otherwise create it
+        git checkout $branchName 2>/dev/null || git checkout -b $branchName --track
+        code .
+    fi
+}
+
+pull () {
+    git push -u
+    PRRESULT=$(hub pull-request -m "$1")
+    echo $PRRESULT
+    echo "$PRRESULT => $1" | pbcopy
+}
+
+lock () {
+  open -a ScreenSaverEngine
+}
+
+########################
+# PYENV                #
+########################
+
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
+
+########################
+# PIPENV               #
+########################
+
+# tell pipenv to store virtualenv inside project directories
+export PIPENV_VENV_IN_PROJECT=true
+
+eval "$(pipenv --completion)"
+
+########################
+# DIRENV               #
+########################
+
+eval "$(direnv hook zsh)"
+# eval "$(chef shell-init zsh)"
+
+# Python Bin
+export PATH=$PATH:~/.local/bin
+
+########################
+# GOLANG               #
+########################
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
+# vg https://github.com/GetStream/vg
+command -v vg >/dev/null 2>&1 && eval "$(vg eval --shell zsh)"
+
+########################
+# SQL HELPERS          #
+########################
+
+function sqlencrypt() {
+        openssl enc -aes-256-cbc -salt -in ${1} -out ${1}.enc
+}
+
+function sqldecrypt() {
+        openssl enc -aes-256-cbc -d -in ${1} -out ${1:r}
+}
+
+
+########################
+# AWS HELPERS          #
+########################
+
+function aws-personal() {
+        export AWS_SHARED_CREDENTIALS_FILE="~/.aws/credentials_personal"
+        export AWS_CONFIG_FILE="~/.aws/config_personal"
+        export AWS_PROFILE=personal
+}
+
+function aws-cb() {
+        unset AWS_SHARED_CREDENTIALS_FILE
+        unset AWS_CONFIG_FILE
+        export AWS_PROFILE=development
+}
+
+########################
+# REPLACEMENT TOOLS    #
+########################
+
+alias cat='bat'
+alias ping='prettyping --nolegend'
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
