@@ -29,7 +29,6 @@ plugins=(git vagrant zsh-autosuggestions)
 ########################
 
 alias furu='git fu && git ru && code .'
-alias gfi='git fuckit'
 alias gitdd='echo "Loading Datadog Git" && cd ~/dd'
 alias gitp='echo "Loading Personal Git" && cd ~/projectsgit/personal'
 alias gitgo='echo "Loading Go Repos" && cd ~/go/src/github.com/MattHodge'
@@ -149,6 +148,7 @@ source .env
 ########################
 
 export PATH="$PATH:~/projectsgit/devtools/bin"
+
 # BEGIN ANSIBLE MANAGED BLOCK
 # Add homebrew binaries to the path.
 export PATH="/usr/local/bin:${PATH?}"
