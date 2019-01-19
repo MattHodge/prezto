@@ -11,19 +11,24 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customization from here:
-
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 autoload -Uz promptinit
 promptinit
 prompt agnoster
 
-export PATH="/usr/local/opt/ab/bin:$PATH"
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
-
-plugins=(git vagrant zsh-autosuggestions)
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 
+# Remove the host name
+# prompt_context() {
+#   if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
+#     prompt_segment black default "%(!.%{%F{yellow}%}.)$USER"
+#   fi
+# }
+
+prompt_context() {
+  prompt_segment $PRIMARY_FG default  "  🔥  "
+}
 ########################
 # ALIASES              #
 ########################
@@ -32,6 +37,7 @@ alias furu='git fu && git ru && code .'
 alias gitdd='echo "Loading Datadog Git" && cd ~/dd'
 alias gitp='echo "Loading Personal Git" && cd ~/projectsgit/personal'
 alias gitgo='echo "Loading Go Repos" && cd ~/go/src/github.com/MattHodge'
+alias ls='ls -lah --color=auto'
 
 ########################
 # FUNCTIONS            #
@@ -183,3 +189,6 @@ export AWS_SESSION_TTL=24h
 export AWS_ASSUME_ROLE_TTL=1h
 # END ANSIBLE MANAGED BLOCK
 export PATH="$PATH:$DATADOG_ROOT/devtools/bin"
+
+# load custom file colors with the unix tools
+eval $(dircolors -b $HOME/.zprezto/custom/.dircolors)
