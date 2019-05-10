@@ -19,13 +19,6 @@ export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 
-# Remove the host name
-# prompt_context() {
-#   if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-#     prompt_segment black default "%(!.%{%F{yellow}%}.)$USER"
-#   fi
-# }
-
 prompt_context() {
   prompt_segment $PRIMARY_FG default  "  🔥  "
 }
@@ -38,6 +31,7 @@ alias gitdd='echo "Loading Datadog Git" && cd ~/dd'
 alias gitp='echo "Loading Personal Git" && cd ~/projectsgit/personal'
 alias gitgo='echo "Loading Go Repos" && cd ~/go/src/github.com/MattHodge'
 alias ls='ls -lah --color=auto'
+alias k='kubectl'
 
 ########################
 # FUNCTIONS            #
@@ -83,6 +77,34 @@ lock () {
   open -a ScreenSaverEngine
 }
 
+kinitlog() {
+    kubectl logs $1 -c consul-template-init
+}
+
+kshowlog() {
+    kubectl logs $1
+}
+
+kdel() {
+    kubectl delete pods $1
+}
+
+dockerimagesrm() {
+    docker rmi $(docker images -a | grep $1 | awk '{print $1}') --force
+}
+
+dockerbash() {
+    docker run --rm -it --entrypoint /bin/bash $1
+}
+
+dockerbashmount() {
+    docker run --rm -it -v $PWD:/mnt --volume $SSH_AUTH_SOCK:/ssh-agent --env SSH_AUTH_SOCK=/ssh-agent --entrypoint /bin/bash $1
+}
+
+dockersh() {
+    docker run --rm -it --entrypoint /bin/sh $1
+}
+
 ########################
 # PYENV                #
 ########################
@@ -98,6 +120,7 @@ fi
 # tell pipenv to store virtualenv inside project directories
 export PIPENV_VENV_IN_PROJECT=true
 
+# Broken with Python Update
 eval "$(pipenv --completion)"
 
 ########################
@@ -128,12 +151,6 @@ function aws-personal() {
         export AWS_PROFILE=personal
 }
 
-function aws-cb() {
-        unset AWS_SHARED_CREDENTIALS_FILE
-        unset AWS_CONFIG_FILE
-        export AWS_PROFILE=development
-}
-
 ########################
 # REPLACEMENT TOOLS    #
 ########################
@@ -143,52 +160,24 @@ alias ping='prettyping --nolegend'
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+export EDITOR=vim
+
 ########################
 # SECRETS              #
 ########################
 
-source .env
+if [ -f .env ]; then
+    source .env
+fi
 
 ########################
 # DATADOG              #
 ########################
 
-export PATH="$PATH:~/projectsgit/devtools/bin"
+source .datadogrc
 
-# BEGIN ANSIBLE MANAGED BLOCK
-# Add homebrew binaries to the path.
-export PATH="/usr/local/bin:${PATH?}"
 
-# Force certain more-secure behaviours from homebrew
-export HOMEBREW_NO_INSECURE_REDIRECT=1
-export HOMEBREW_CASK_OPTS=--require-sha
-
-# Load ruby shims
-eval "$(rbenv init -)"
-
-# Prefer GNU binaries to Macintosh binaries.
-export PATH="/usr/local/opt/coreutils/libexec/gnubin:${PATH}"
-
-# Add datadog devtools binaries to the PATH
-export PATH="${HOME?}/dd/devtools/bin:${PATH?}"
-
-# Point GOPATH to our go sources
-export GOPATH="${HOME?}/go"
-
-# Point DATADOG_ROOT to ~/dd symlink
-export DATADOG_ROOT="${HOME?}/dd"
-
-# Tell the devenv vm to mount $GOPATH/src rather than just dd-go
-export MOUNT_ALL_GO_SRC=1
-
-# store key in the login keychain instead of aws-vault managing a hidden keychain
-export AWS_VAULT_KEYCHAIN_NAME=login
-
-# tweak session times so you don't have to re-enter passwords every 5min
-export AWS_SESSION_TTL=24h
-export AWS_ASSUME_ROLE_TTL=1h
-# END ANSIBLE MANAGED BLOCK
-export PATH="$PATH:$DATADOG_ROOT/devtools/bin"
-
-# load custom file colors with the unix tools
+########################
+# DIRCOLOR             #
+########################
 eval $(dircolors -b $HOME/.zprezto/custom/.dircolors)
