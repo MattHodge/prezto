@@ -11,6 +11,10 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customization from here:
+
+# Load the bashrc
+emulate sh -c 'source ~/.bashrc'
+
 autoload -Uz promptinit
 promptinit
 prompt agnoster
@@ -174,8 +178,9 @@ fi
 # DATADOG              #
 ########################
 
-source .datadogrc
-
+if [ -f .datadogrc ]; then
+    source .datadogrc
+fi
 
 ########################
 # DIRCOLOR             #
