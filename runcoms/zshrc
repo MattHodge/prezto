@@ -11,9 +11,9 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customization from here:
-
-# Load the bashrc
-emulate sh -c 'source ~/.bashrc'
+if [ -f .bashrc ]; then
+    emulate sh -c 'source ~/.bashrc'
+fi
 
 autoload -Uz promptinit
 promptinit
@@ -30,10 +30,6 @@ prompt_context() {
 # ALIASES              #
 ########################
 
-alias furu='git fu && git ru && code .'
-alias gitdd='echo "Loading Datadog Git" && cd ~/dd'
-alias gitp='echo "Loading Personal Git" && cd ~/projectsgit/personal'
-alias gitgo='echo "Loading Go Repos" && cd ~/go/src/github.com/MattHodge'
 alias ls='ls -lah --color=auto'
 alias k='kubectl'
 
@@ -81,18 +77,6 @@ lock () {
   open -a ScreenSaverEngine
 }
 
-kinitlog() {
-    kubectl logs $1 -c consul-template-init
-}
-
-kshowlog() {
-    kubectl logs $1
-}
-
-kdel() {
-    kubectl delete pods $1
-}
-
 dockerimagesrm() {
     docker rmi $(docker images -a | grep $1 | awk '{print $1}') --force
 }
@@ -132,7 +116,6 @@ eval "$(pipenv --completion)"
 ########################
 
 eval "$(direnv hook zsh)"
-# eval "$(chef shell-init zsh)"
 
 # Python Bin
 export PATH=$PATH:~/.local/bin
