@@ -11,7 +11,7 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customization from here:
-if [ -f .bashrc ]; then
+if [ -f ~/.bashrc ]; then
     emulate sh -c 'source ~/.bashrc'
 fi
 
